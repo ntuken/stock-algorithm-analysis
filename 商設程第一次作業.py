@@ -1,4 +1,4 @@
-while(1):
+while(1234):
 	a = int(input())
 	change = 100 - a
 	ans = [] 
