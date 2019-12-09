@@ -1,7 +1,0 @@
-工作分配:
-1. 最佳特徵函數 :
-    input : 預選特徵、data 
-    output : 
-2. 
-
-3. 製作dashboard
