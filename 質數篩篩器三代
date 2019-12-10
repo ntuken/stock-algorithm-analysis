@@ -1,0 +1,16 @@
+import math
+
+global box
+box = []
+def is_prime(n):
+    a = int(math.sqrt(n)) + 1
+    for i in range(2,a):
+        if n % i == 0:
+            return False
+    box.append(n)
+    
+n = int(input())
+
+for i in range(2,n+1):
+    prime = is_prime(i)
+print(box)
