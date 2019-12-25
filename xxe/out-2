@@ -1,0 +1,37 @@
+import pandas as pd
+import dash
+import dash_core_components as dcc   #引入dash核心元素
+import dash_html_components as html   #引入dash html元素
+
+df = pd.read_csv(
+    'C:\\Users\\user\\Desktop\\大學作業\\商管\\期末共享\\stock-algorithm-analysis\\stock-algorithm-analysis\\期末專案Stocker\\out-2.csv')
+
+app = dash.Dash()
+app.layout = html.Div([
+    
+    # 折线图
+    dcc.Graph(
+        id='graph-line',
+        className='my_graph',
+        figure={
+            'data': [{
+                'x': str(df['Date'])+str(df['num']),
+                'y': df['estimate'],
+                'type': 'scatter',
+                'mode': 'lines+markers',
+            }],
+            'layout': {
+                'title': '預測股價',
+                'color': 'red',
+                'height': 600,
+                'yaxis': {'hoverformat': '.0f'},
+                'margin': {'l': 35, 'r': 35, 't': 50, 'b': 80},
+            }
+        },
+        config={
+            'displayModeBar': False
+        },
+    )
+])
+if __name__ == '__main__':
+    app.run_server(host='127.0.0.1', port='8050', debug=True)
