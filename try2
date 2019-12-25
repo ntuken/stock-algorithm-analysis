@@ -1,0 +1,83 @@
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+import math
+import pandas as pd
+import plotly.graph_objs as go
+
+app = dash.Dash()  #　呼叫class
+
+df = pd.read_csv(
+    "C:\\Users\\user\\Desktop\\大學作業\\商管\\期末\\stock.csv",encoding = 'Big5')
+bubble_size = [math.sqrt(p / math.pi) for p in df["price"].values]
+# math.pi 精確的pi
+df['size'] = bubble_size
+sizeref = 2*(df['size'])/(100**2)
+unique_types = list(df["type"].unique())
+print(df)
+# create layout
+app.layout = html.Div([
+    html.H2(children = 'A Gapminder Replica with Dash'),
+    dcc.Dropdown(
+        id="type-dropdown",
+        options=[
+            {'label': i, 'value': i} for i in unique_types
+        ],
+        value=unique_types,
+        multi=True
+    ),
+    # draw Graph
+    dcc.Graph(id='gapminder',
+              animate=True
+              ),
+    dcc.Slider(
+        id='year-slider',
+        min=df['year'].min(),
+        max=df['year'].max(),
+        value=df['year'].min(),
+        step=None,
+        marks={str(year): str(year) for year in df['year'].unique()}
+    )
+])
+
+
+@app.callback(
+    dash.dependencies.Output('gapminder', 'figure'),
+    [dash.dependencies.Input('year-slider', 'value'),
+     dash.dependencies.Input('type-dropdown', 'value')])
+def update_figure(selected_year, selected_type):
+    year_filtered_df = df[df.year == selected_year]
+    filtered_df = year_filtered_df[df.type.isin(selected_type)]
+    traces = []
+    for i in filtered_df.type.unique():
+        df_by_type = filtered_df[filtered_df['type'] == i]
+        traces.append(go.Scatter(
+            x= df_by_type['variance'],
+            y= df_by_type['EPS'],
+            text=df_by_type['company'],
+            mode='markers',
+            opacity=0.7,
+            marker={
+                'size': df[df['type'] == i]['size'],
+                'line': {'width': 0.5, 'color': 'white'},
+                'sizeref': sizeref,
+                'symbol': 'circle',
+                'sizemode': 'area'
+            },
+            name=i
+        ))
+
+    return {
+        'data': traces,
+        'layout': go.Layout(
+            xaxis={'title': '-VAR','type':'log','range': [2.5, 0]},
+            yaxis={'title': 'EPS','type':'log','range': [0, 2.5]},
+            margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
+            legend={'x': 0, 'y': 1},
+            hovermode='closest'
+        )
+    }
+
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
